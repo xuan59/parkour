@@ -15,16 +15,21 @@ import java.io.File;
  * */
 public class GameFrame extends JFrame {
     public GameFrame(){
-        GamePanel gamePanel = new GamePanel();
-        gamePanel.action();
-        this.addKeyListener(gamePanel);
-        this.add(gamePanel);
-        this.setSize(GameEnum.MAIN_WIDTH.getValue(), GameEnum.MAIN_HEIGHT.getValue());
-        this.setLocationRelativeTo(null);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setIconImage(new ImageIcon("image/icon.png").getImage());
-        this.setUndecorated(true);
-        this.setVisible(true);
+        try {
+            GamePanel gamePanel = new GamePanel();
+            gamePanel.action();
+            this.addKeyListener(gamePanel);
+            this.add(gamePanel);
+            this.setSize(GameEnum.MAIN_WIDTH.getValue(), GameEnum.MAIN_HEIGHT.getValue());
+            this.setLocationRelativeTo(null);
+            this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            this.setIconImage(new ImageIcon("image/icon.png").getImage());
+            this.setUndecorated(true);
+            this.setVisible(true);
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
     }
 
 

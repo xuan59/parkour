@@ -5,7 +5,7 @@ public enum GameEnum {
     MAIN_HEIGHT(500, "游戏界面高度"),
 
     PERSON_WIDTH(100, "人物宽度"),
-    PERSON_HEIGHT(200, "人物高度");
+    PERSON_HEIGHT(100, "人物高度");
 
     private final Integer value;
     private final String name;

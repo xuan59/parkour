@@ -12,26 +12,30 @@ import java.util.Random;
  * 金币
  * */
 public class Gold {
-    public static final Integer WIDTH = 60;
-    public static final Integer HEIGHT = 60;
+    public static final Integer WIDTH = 35;
+    public static final Integer HEIGHT = 35;
     private Image image;
     private Image[] images;
-    private Integer x, y, speed;
+    private Integer x, y, speed, score;
     private Integer index = 0;
     Random random = new Random();
 
     public Gold() {
         try{
-            images = new Image[6];
+            images = new Image[4];
             BufferedImage bufferedImage = ImageIO.read(new File("image/barrier3.png"));
-            for(int i = 0; i < images.length; i++){
-                if(i % 2 != 0){
-                    images[i] = bufferedImage.getSubimage(234 + 30, i * 30, WIDTH, HEIGHT);
-                }else {
-                    images[i] = bufferedImage.getSubimage(234, i * 30, WIDTH, HEIGHT);
-                }
-            }
-            index = random.nextInt(6);
+            /*
+            * 239,  0, 35, 35
+            * 239,  70, 35, 35
+            * 274,  0, 35, 35
+            * 274,  70, 35, 35
+            * */
+            images[0] = bufferedImage.getSubimage(239, 0, WIDTH, HEIGHT);
+            images[1] = bufferedImage.getSubimage(274, 0, WIDTH, HEIGHT);
+            images[2] = bufferedImage.getSubimage(239, 70, WIDTH, HEIGHT);
+            images[3] = bufferedImage.getSubimage(274, 70, WIDTH, HEIGHT);
+            index = random.nextInt(4);
+            score = (index + 1) * 50;
             image = images[index];
             speed = 20;
             x = GameEnum.MAIN_WIDTH.getValue();
@@ -55,7 +59,7 @@ public class Gold {
 
     //判断人物是否越界
     public boolean outOfBounds() {
-        return this.x + GameEnum.PERSON_WIDTH.getValue() > GameEnum.MAIN_WIDTH.getValue() || this.x < 0;
+        return this.x < 0;
     }
 
     public static Integer getWIDTH() {
@@ -112,5 +116,13 @@ public class Gold {
 
     public void setIndex(Integer index) {
         this.index = index;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
     }
 }

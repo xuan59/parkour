@@ -14,6 +14,8 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
 
 /**
  * @author lx
@@ -32,22 +34,25 @@ public class GamePanel extends JPanel implements KeyListener {
     Barrier01 barrier01; //障碍物
     Gold gold; //金币
     Pet pet; //宠物
-    Gold[] golds = {};
+    List<Gold> goldList = null;
     Barrier01[] barrier01s = {};
     Integer index = 0;
     Integer x = 0;
     JProgressBar jProgressBar;
     boolean isPause = false;
+    Random random = new Random();
     public GamePanel() {
         person = new Person();
         pause = new JButton();
         proceed = new JButton();
         gold = new Gold();
         pet = new Pet();
+        goldList = new ArrayList<Gold>();
         jProgressBar = new JProgressBar();
         jProgressBar.setStringPainted(true); //显示进度
         jProgressBar.setBackground(Color.WHITE);
         jProgressBar.setForeground(Color.RED);
+        jProgressBar.setSize(460, 15);
         jProgressBar.setBounds(0, 0, 600, 15);
         this.add(BorderLayout.SOUTH, jProgressBar);
         try{
@@ -64,19 +69,20 @@ public class GamePanel extends JPanel implements KeyListener {
     public void paint(Graphics g){
         super.paint(g);
         //绘制背景图片
-        x -= 20;
         g.drawImage(background, x, 0, GameEnum.MAIN_WIDTH.getValue(), GameEnum.MAIN_HEIGHT.getValue(), null);
-        g.drawImage(background, x + GameEnum.MAIN_WIDTH.getValue(), 0, GameEnum.MAIN_WIDTH.getValue(), GameEnum.MAIN_HEIGHT.getValue(), null);
+        g.drawImage(background, x + GameEnum.MAIN_WIDTH.getValue() -20, 0, GameEnum.MAIN_WIDTH.getValue(), GameEnum.MAIN_HEIGHT.getValue(), null);
+        x -= 20;
         if(x < -GameEnum.MAIN_WIDTH.getValue()){
             x = 0;
         }
 
         //绘制人物
         person.paintPerson(g);
+        jProgressBar.setValue(person.getLifeNumber());
         //绘制宠物
         pet.paintPet(g);
         //绘制障碍物
-        for (Gold gold1 : golds) {
+        for (Gold gold1 : goldList) {
             gold1.paintGold(g);
         }
         for (Barrier01 barr: barrier01s) {
@@ -96,10 +102,10 @@ public class GamePanel extends JPanel implements KeyListener {
             barrier01s = Arrays.copyOf(barrier01s, barrier01s.length + 1);
             barrier01s[barrier01s.length - 1] = b1;
         }
-        if(index % 15 ==0){
+
+        if(index % 20 ==0){
             Gold gold = new Gold();
-            golds = Arrays.copyOf(golds, golds.length + 1);
-            golds[golds.length -1] = gold;
+            goldList.add(gold);
         }
     }
 
@@ -107,28 +113,33 @@ public class GamePanel extends JPanel implements KeyListener {
     public void stepAction() {
         person.step();
         pet.step();
-        for(Gold g : golds){
-            g.step();
-            if(person.getX() + GameEnum.PERSON_WIDTH.getValue() >= g.getX() && person.getX() <= g.getX() + g.getWIDTH()&&
-            person.getY() + + GameEnum.PERSON_HEIGHT.getValue() >= g.getY() && person.getY() <= g.getY() + g.getHEIGHT()){
-                person.setScore(person.getScore() + ((g.getIndex() + 1) * 15));
-                jProgressBar.setValue(person.getLifeNumber());
+        try {
+            for (int i = 0; i < goldList.size(); i++) {
+                Gold g = goldList.get(i);
+                g.step();
+                if (person.getX() + GameEnum.PERSON_WIDTH.getValue() >= g.getX() && person.getX() <= g.getX() + g.getWIDTH() &&
+                        person.getY() <= g.getY() + g.getHEIGHT() && person.getY() + GameEnum.PERSON_HEIGHT.getValue() >= g.getY()) {
+                    person.setScore(person.getScore() + ((g.getIndex() + 1) * 15));
+                    goldList.remove(g);
+                }
+                if (g.outOfBounds()) {
+                    goldList.remove(i);
+                }
             }
-            if(g.outOfBounds()){
-                g = golds[golds.length - 1];
-                golds = Arrays.copyOf(golds , golds.length - 1);
+            for (Barrier01 barrier01 : barrier01s) {
+                barrier01.step();
+                if (person.getX() + GameEnum.PERSON_WIDTH.getValue() >= barrier01.getX() && person.getX() <= barrier01.getX() + barrier01.getWIDTH() &&
+                        person.getY() + GameEnum.PERSON_HEIGHT.getValue() >= barrier01.getY() && person.getY() <= barrier01.getY() + barrier01.getHEIGHT()) {
+                    person.setLifeNumber(person.getLifeNumber() - 10);
+                }
+                if (barrier01.outOfBounds()) {
+                    barrier01 = barrier01s[barrier01s.length - 1];
+                    barrier01s = Arrays.copyOf(barrier01s, barrier01s.length - 1);
+                }
             }
-        }
-        for(Barrier01 barrier01 : barrier01s){
-            barrier01.step();
-            if(person.getX() + GameEnum.PERSON_WIDTH.getValue() >= barrier01.getX() && person.getX() <= barrier01.getX() + barrier01.getWIDTH()&&
-            person.getY() + + GameEnum.PERSON_HEIGHT.getValue() >= barrier01.getY() && person.getY() <= barrier01.getY() + barrier01.getHEIGHT()){
-                person.setLifeNumber(person.getLifeNumber() - 10);
-            }
-            if(barrier01.outOfBounds()){
-                barrier01 = barrier01s[barrier01s.length - 1];
-                barrier01s = Arrays.copyOf(barrier01s, barrier01s.length -1);
-            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
